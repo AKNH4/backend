@@ -6,6 +6,8 @@ import { AuthService } from './service/auth.service';
 import AuthGuard from './guard/auth.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entity/user.entity';
+import { UserModule } from 'src/user/user.module';
+import { UserService } from 'src/user/service/user.service';
 
 @Global()
 @Module({

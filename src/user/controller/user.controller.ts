@@ -9,12 +9,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import AuthGuard from '../../auth/guard/auth.guard';
 import { GetUser } from '../../decorator/getuser.decorator';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
 import { ChangeUsernameDto } from '../dto/changeUsername.dto';
-import { CreateUserDto } from '../dto/createuser.dto';
+import { SignUpDto } from '../dto/sign-up.dto';
 import { LoginResponse } from '../dto/Login.response';
 import { ResponseMessage } from '../../common/dto/';
 import { User } from '../entity/user.interface';
@@ -28,11 +28,11 @@ export class UserController {
   @Get('/data')
   @UseGuards(AuthGuard)
   getUserData(@GetUser() user: User): Observable<User> {
-    return this.userService.getUserData(user.id);
+    return of(user);
   }
 
   @Post('/sign-up')
-  signUp(@Body() dto: CreateUserDto): Observable<LoginResponse> {
+  signUp(@Body() dto: SignUpDto): Observable<LoginResponse> {
     return this.userService.signUp(dto);
   }
 

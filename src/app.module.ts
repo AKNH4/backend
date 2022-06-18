@@ -36,8 +36,8 @@ import { CommentService } from './comment/service/comment.service';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(config),
     ServeStaticModule.forRoot({
-      rootPath: join('/root/frontend'),
-      // rootPath: 'C:\\dev\\marasite\\dist\\marasite',
+      // rootPath: join('/root/frontend'),
+      rootPath: 'C:\\dev\\marasite\\dist\\marasite',
     }),
     UserModule,
     AuthModule,

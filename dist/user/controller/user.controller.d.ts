@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
-import { CreateUserDto } from '../dto/createuser.dto';
+import { SignUpDto } from '../dto/sign-up.dto';
 import { LoginResponse } from '../dto/Login.response';
 import { ResponseMessage } from '../../common/dto/';
 import { User } from '../entity/user.interface';
@@ -10,7 +10,7 @@ export declare class UserController {
     private userService;
     constructor(userService: UserService);
     getUserData(user: User): Observable<User>;
-    signUp(dto: CreateUserDto): Observable<LoginResponse>;
+    signUp(dto: SignUpDto): Observable<LoginResponse>;
     login(dto: LoginDto): Observable<LoginResponse>;
     deleteUser(user: User): Observable<ResponseMessage>;
     changePassword(user: User, dto: ChangePasswordDto): Observable<ResponseMessage>;

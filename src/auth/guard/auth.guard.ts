@@ -16,18 +16,8 @@ import { AuthService } from '../service/auth.service';
 export default class AuthGuard implements CanActivate {
   constructor(private authService: AuthService) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token: string = request.headers.authorization?.split(' ')[1];
-
-    if (!token) throw new UnauthorizedException('Token missing');
-
-    const decoded = await this.authService.validateJwt(token);
-
-    if (!decoded) throw new UnauthorizedException('Token no longer valid');
-
-    request.user = { ...decoded, exp: undefined, iat: undefined };
-
-    return request;
+    return this.authService.validateRequest(request);
   }
 }

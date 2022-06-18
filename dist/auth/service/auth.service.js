@@ -25,8 +25,8 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
-    generateJWT(payload) {
-        return (0, rxjs_1.from)(this.jwtService.signAsync(Object.assign({}, payload)));
+    generateJWT(user) {
+        return (0, rxjs_1.from)(this.jwtService.signAsync({ sub: user.id }));
     }
     hashPassword(password) {
         return (0, rxjs_1.from)((0, bcrypt_1.hash)(password, 12));
@@ -34,19 +34,26 @@ let AuthService = class AuthService {
     comparePasswords(password, storedPassword) {
         return (0, rxjs_1.from)((0, bcrypt_1.compare)(password, storedPassword));
     }
-    async validateJwt(jwt) {
-        try {
-            const decoded = await this.jwtService.verify(jwt);
-            const user = await this.userRepository.findOne({
-                where: { id: decoded.id },
-            });
-            if (!user)
-                return false;
-            return decoded;
-        }
-        catch (err) {
+    validateRequest(request) {
+        var _a;
+        const token = (_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+        if (!token)
+            throw new common_1.UnauthorizedException('Token missing');
+        return (0, rxjs_1.from)(this.jwtService.verifyAsync(token)).pipe((0, rxjs_1.switchMap)((decoded) => {
+            return (0, rxjs_1.from)(this.userRepository.findOne({
+                where: {
+                    id: decoded.sub,
+                },
+            })).pipe((0, rxjs_1.map)((user) => {
+                if (!user)
+                    return false;
+                delete user.password;
+                request.user = user;
+                return true;
+            }));
+        }), (0, rxjs_1.catchError)((err) => {
             throw new common_1.UnauthorizedException('Token invalid');
-        }
+        }));
     }
 };
 AuthService = __decorate([

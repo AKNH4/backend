@@ -15,17 +15,9 @@ let AuthGuard = class AuthGuard {
     constructor(authService) {
         this.authService = authService;
     }
-    async canActivate(context) {
-        var _a;
+    canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const token = (_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        if (!token)
-            throw new common_1.UnauthorizedException('Token missing');
-        const decoded = await this.authService.validateJwt(token);
-        if (!decoded)
-            throw new common_1.UnauthorizedException('Token no longer valid');
-        request.user = Object.assign(Object.assign({}, decoded), { exp: undefined, iat: undefined });
-        return request;
+        return this.authService.validateRequest(request);
     }
 };
 AuthGuard = __decorate([

@@ -11,7 +11,6 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const serve_static_1 = require("@nestjs/serve-static");
 const typeorm_1 = require("@nestjs/typeorm");
-const path_1 = require("path");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const auth_module_1 = require("./auth/auth.module");
@@ -27,7 +26,7 @@ AppModule = __decorate([
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             typeorm_1.TypeOrmModule.forRoot(ormconfig_1.default),
             serve_static_1.ServeStaticModule.forRoot({
-                rootPath: (0, path_1.join)('/root/frontend'),
+                rootPath: 'C:\\dev\\marasite\\dist\\marasite',
             }),
             user_module_1.UserModule,
             auth_module_1.AuthModule,

@@ -6,20 +6,20 @@ import { AppModule } from './app.module';
 import { readFileSync } from 'fs';
 const helmet = require('helmet');
 
-const cert = readFileSync('/etc/letsencrypt/live/marasite.de/cert.pem');
-const key = readFileSync('/etc/letsencrypt/live/marasite.de/privkey.pem');
-const ca = readFileSync('/etc/letsencrypt/live/marasite.de/fullchain.pem');
+// const cert = readFileSync('/etc/letsencrypt/live/marasite.de/cert.pem');
+// const key = readFileSync('/etc/letsencrypt/live/marasite.de/privkey.pem');
+// const ca = readFileSync('/etc/letsencrypt/live/marasite.de/fullchain.pem');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    httpsOptions: {
-      cert: cert,
-      key: key,
-      ca: ca,
-    },
+    // httpsOptions: {
+    //   cert: cert,
+    //   key: key,
+    //   ca: ca,
+    // },
   });
 
-  const PORT = 443;
+  const PORT = 8080;
 
   // app.use(csurf())
   app.enableCors();

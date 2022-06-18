@@ -1,12 +1,16 @@
 import {
   BadGatewayException,
+  forwardRef,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
-import { from, map, Observable, of } from 'rxjs';
+import { Request } from 'express';
+import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
+import { UserService } from 'src/user/service/user.service';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../../user/entity/user.entity';
 import { User } from '../../user/entity/user.interface';
@@ -19,8 +23,8 @@ export class AuthService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  generateJWT(payload: Object): Observable<string> {
-    return from(this.jwtService.signAsync({ ...payload }));
+  generateJWT(user: User): Observable<string> {
+    return from(this.jwtService.signAsync({ sub: user.id }));
   }
 
   hashPassword(password: string): Observable<string> {
@@ -31,16 +35,31 @@ export class AuthService {
     return from(compare(password, storedPassword));
   }
 
-  async validateJwt(jwt: string): Promise<Object> {
-    try {
-      const decoded = await this.jwtService.verify(jwt);
-      const user = await this.userRepository.findOne({
-        where: { id: decoded.id },
-      });
-      if (!user) return false;
-      return decoded;
-    } catch (err) {
-      throw new UnauthorizedException('Token invalid');
-    }
+  validateRequest(request: Request): Observable<boolean> {
+    const token: string = request.headers.authorization?.split(' ')[1];
+
+    if (!token) throw new UnauthorizedException('Token missing');
+
+    return from(this.jwtService.verifyAsync(token)).pipe(
+      switchMap((decoded: any) => {
+        return from(
+          this.userRepository.findOne({
+            where: {
+              id: decoded.sub,
+            },
+          }),
+        ).pipe(
+          map((user: User) => {
+            if (!user) return false;
+            delete user.password;
+            request.user = user;
+            return true;
+          }),
+        );
+      }),
+      catchError((err: any) => {
+        throw new UnauthorizedException('Token invalid');
+      }),
+    );
   }
 }

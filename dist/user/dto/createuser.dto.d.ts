@@ -1,4 +1,4 @@
-export declare class CreateUserDto {
+export declare class SignUpDto {
     username: string;
     password: string;
 }

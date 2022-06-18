@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { CommentEntity } from '../../comment/entity/comment.entity';
 import { PostEntity } from '../../post/entity/post.entity';
 

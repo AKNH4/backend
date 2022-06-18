@@ -18,7 +18,7 @@ const rxjs_1 = require("rxjs");
 const auth_guard_1 = require("../../auth/guard/auth.guard");
 const getuser_decorator_1 = require("../../decorator/getuser.decorator");
 const changePassword_dto_1 = require("../dto/changePassword.dto");
-const createuser_dto_1 = require("../dto/createuser.dto");
+const sign_up_dto_1 = require("../dto/sign-up.dto");
 const user_service_1 = require("../service/user.service");
 const Login_dto_1 = require("../dto/Login.dto");
 let UserController = class UserController {
@@ -26,7 +26,7 @@ let UserController = class UserController {
         this.userService = userService;
     }
     getUserData(user) {
-        return this.userService.getUserData(user.id);
+        return (0, rxjs_1.of)(user);
     }
     signUp(dto) {
         return this.userService.signUp(dto);
@@ -56,7 +56,7 @@ __decorate([
     (0, common_1.Post)('/sign-up'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [createuser_dto_1.CreateUserDto]),
+    __metadata("design:paramtypes", [sign_up_dto_1.SignUpDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "signUp", null);
 __decorate([

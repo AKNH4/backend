@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, from, map, Observable, switchMap } from 'rxjs';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { AuthService } from '../../auth/service/auth.service';
-import { CreateUserDto } from '../dto/createuser.dto';
+import { SignUpDto } from '../dto/sign-up.dto';
 import { LoginDto } from '../dto/Login.dto';
 import { LoginResponse } from '../dto/Login.response';
 import { UserEntity } from '../entity/user.entity';
@@ -28,7 +28,7 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  signUp(user: CreateUserDto): Observable<LoginResponse> {
+  signUp(user: SignUpDto): Observable<LoginResponse> {
     user.username = user.username.toLowerCase();
     return this.usernameExists(user.username).pipe(
       switchMap((exists: boolean) => {
