@@ -25,8 +25,8 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
-    generateJWT(user) {
-        return (0, rxjs_1.from)(this.jwtService.signAsync({ sub: user.id }));
+    generateJWT(sub) {
+        return (0, rxjs_1.from)(this.jwtService.signAsync({ sub }));
     }
     hashPassword(password) {
         return (0, rxjs_1.from)((0, bcrypt_1.hash)(password, 12));
@@ -40,13 +40,9 @@ let AuthService = class AuthService {
         if (!token)
             throw new common_1.UnauthorizedException('Token missing');
         return (0, rxjs_1.from)(this.jwtService.verifyAsync(token)).pipe((0, rxjs_1.switchMap)((decoded) => {
-            return (0, rxjs_1.from)(this.userRepository.findOne({
-                where: {
-                    id: decoded.sub,
-                },
-            })).pipe((0, rxjs_1.map)((user) => {
+            return (0, rxjs_1.from)(this.userRepository.findOne({ where: { id: decoded.sub } })).pipe((0, rxjs_1.map)((user) => {
                 if (!user)
-                    return false;
+                    throw new common_1.UnauthorizedException('Token no longer valid');
                 delete user.password;
                 request.user = user;
                 return true;

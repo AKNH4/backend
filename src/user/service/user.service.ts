@@ -28,36 +28,59 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  signUp(user: SignUpDto): Observable<LoginResponse> {
-    user.username = user.username.toLowerCase();
-    return this.usernameExists(user.username).pipe(
-      switchMap((exists: boolean) => {
-        if (!exists)
-          return this.authService.hashPassword(user.password).pipe(
-            switchMap((hash: string) => {
-              return from(
-                this.userRepository.save({
-                  username: user.username,
-                  password: hash,
-                }),
-              ).pipe(
-                switchMap((newUser: User) => {
-                  return this.authService.generateJWT(newUser.id).pipe(
-                    map((token: string) => {
-                      return {
-                        token: token,
-                        user: this.makeUserResponse(newUser),
-                      };
-                    }),
-                  );
-                }),
-              );
-            }),
-          );
-        throw new BadRequestException('Benutzername gibts schon!');
+  signUp(dto: SignUpDto): Observable<string> {
+    const { username, password } = dto;
+    return from(this.userRepository.findOne({ where: { username } })).pipe(
+      switchMap((user: User) => {
+        if (user) throw new BadRequestException('Benutzername gibt es schon');
+        return this.authService.hashPassword(password).pipe(
+          switchMap((passwordHash) => {
+            return from(
+              this.userRepository.save({
+                username,
+                password: passwordHash,
+              }),
+            ).pipe(
+              switchMap((newUser: User) =>
+                this.authService.generateJWT(newUser.id),
+              ),
+            );
+          }),
+        );
       }),
     );
   }
+
+  // signUp(dto: SignUpDto): Observable<LoginResponse> {
+  //   dto.username = dto.username.toLowerCase();
+  //   return this.usernameExists(dto.username).pipe(
+  //     switchMap((exists: boolean) => {
+  //       if (!exists)
+  //         return this.authService.hashPassword(dto.password).pipe(
+  //           switchMap((hash: string) => {
+  //             return from(
+  //               this.userRepository.save({
+  //                 username: dto.username,
+  //                 password: hash,
+  //               }),
+  //             ).pipe(
+  //               switchMap((newUser: User) => {
+  //                 return this.authService.generateJWT(newUser.id).pipe(
+  //                   map((token: string) => {
+  //                     return {
+  //                       token: token,
+  //                       user: this.makeUserResponse(newUser),
+  //                     };
+  //                   }),
+  //                 );
+  //               }),
+  //             );
+  //           }),
+  //         );
+  //       throw new BadRequestException('Benutzername gibts schon!');
+  //     }),
+  //   );
+  // }
 
   login(dto: LoginDto): Observable<string> {
     return from(

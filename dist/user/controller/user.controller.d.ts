@@ -11,8 +11,9 @@ export declare class UserController {
     constructor(userService: UserService);
     getUserData(user: User): Observable<User>;
     signUp(dto: SignUpDto): Observable<LoginResponse>;
-    login(dto: LoginDto): Observable<LoginResponse>;
+    login(dto: LoginDto): Observable<{
+        token: string;
+    }>;
     deleteUser(user: User): Observable<ResponseMessage>;
     changePassword(user: User, dto: ChangePasswordDto): Observable<ResponseMessage>;
-    getUserById(userId: string): Observable<User>;
 }

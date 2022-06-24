@@ -32,8 +32,8 @@ export class UserController {
   }
 
   @Post('/sign-up')
-  signUp(@Body() dto: SignUpDto): Observable<LoginResponse> {
-    return this.userService.signUp(dto);
+  signUp(@Body() dto: SignUpDto): Observable<{ token: string }> {
+    return this.userService.signUp(dto).pipe(map((token) => ({ token })));
   }
 
   @Post('/login')

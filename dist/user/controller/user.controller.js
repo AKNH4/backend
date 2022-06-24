@@ -32,16 +32,13 @@ let UserController = class UserController {
         return this.userService.signUp(dto);
     }
     login(dto) {
-        return this.userService.login(dto);
+        return this.userService.login(dto).pipe((0, rxjs_1.map)((token) => ({ token })));
     }
     deleteUser(user) {
         return this.userService.deleteUser(user);
     }
     changePassword(user, dto) {
         return this.userService.changePassword(user.id, dto.password);
-    }
-    getUserById(userId) {
-        return this.userService.getUserById(userId);
     }
 };
 __decorate([
@@ -83,13 +80,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, changePassword_dto_1.ChangePasswordDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "changePassword", null);
-__decorate([
-    (0, common_1.Get)('/:id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], UserController.prototype, "getUserById", null);
 UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

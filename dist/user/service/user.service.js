@@ -44,7 +44,7 @@ let UserService = class UserService {
                         username: user.username,
                         password: hash,
                     })).pipe((0, rxjs_1.switchMap)((newUser) => {
-                        return this.authService.generateJWT(newUser).pipe((0, rxjs_1.map)((token) => {
+                        return this.authService.generateJWT(newUser.id).pipe((0, rxjs_1.map)((token) => {
                             return {
                                 token: token,
                                 user: this.makeUserResponse(newUser),
@@ -53,6 +53,19 @@ let UserService = class UserService {
                     }));
                 }));
             throw new common_1.BadRequestException('Benutzername gibts schon!');
+        }));
+    }
+    login(dto) {
+        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { username: dto.username } })).pipe((0, rxjs_1.switchMap)((user) => {
+            if (!user)
+                throw new common_1.UnauthorizedException('Logindaten falsch');
+            return this.authService
+                .comparePasswords(dto.password, user.password)
+                .pipe((0, rxjs_1.switchMap)((match) => {
+                if (!match)
+                    throw new common_1.UnauthorizedException('Logindaten falsch');
+                return this.authService.generateJWT(user.id);
+            }));
         }));
     }
     getUserById(id) {
@@ -83,15 +96,6 @@ let UserService = class UserService {
             if (user)
                 return true;
             return false;
-        }));
-    }
-    login(dto) {
-        return this.validateUser(dto.username, dto.password).pipe((0, rxjs_1.switchMap)((user) => {
-            if (user)
-                return this.authService.generateJWT(user).pipe((0, rxjs_1.map)((token) => {
-                    return { token, user };
-                }));
-            throw new common_1.UnauthorizedException('Falche Logindaten');
         }));
     }
     validateUser(username, password) {
@@ -125,8 +129,8 @@ let UserService = class UserService {
     }
     getUserData(userId) {
         return (0, rxjs_1.from)(this.userRepository.findOne({ where: { id: userId } })).pipe((0, rxjs_1.map)((user) => {
-            const { password } = user, res = __rest(user, ["password"]);
-            return res;
+            delete user.password;
+            return user;
         }));
     }
     makeUserResponse(user) {

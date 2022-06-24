@@ -12,11 +12,11 @@ export declare class UserService {
     private authService;
     constructor(userRepository: Repository<UserEntity>, authService: AuthService);
     signUp(user: SignUpDto): Observable<LoginResponse>;
+    login(dto: LoginDto): Observable<string>;
     getUserById(id: string): Observable<User>;
     findAll(): Observable<User[]>;
     deleteUser(user: User): Observable<ResponseMessage>;
     usernameExists(username: string): Observable<boolean>;
-    login(dto: LoginDto): Observable<LoginResponse>;
     validateUser(username: string, password: string): Observable<User>;
     changePassword(userId: string, password: string): Observable<ResponseMessage>;
     getUserData(userId: string): Observable<User>;
