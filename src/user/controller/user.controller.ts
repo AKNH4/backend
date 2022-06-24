@@ -47,15 +47,6 @@ export class UserController {
     return this.userService.deleteUser(user);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Post('/change-username')
-  // changeUsername(
-  //   @GetUser() user: User,
-  //   @Body() dto: ChangeUsernameDto,
-  // ): Observable<ResponseMessage> {
-  //   return this.userService.changeUsername(user.id, dto.username);
-  // }
-
   @UseGuards(AuthGuard)
   @Post('/change-password')
   changePassword(
@@ -63,10 +54,5 @@ export class UserController {
     @Body() dto: ChangePasswordDto,
   ): Observable<ResponseMessage> {
     return this.userService.changePassword(user.id, dto.password);
-  }
-
-  @Get('/:id')
-  getUserById(@Param('id') userId: string) {
-    return this.userService.getUserById(userId);
   }
 }
