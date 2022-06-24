@@ -42,7 +42,7 @@ export class UserService {
                 }),
               ).pipe(
                 switchMap((newUser: User) => {
-                  return this.authService.generateJWT(newUser).pipe(
+                  return this.authService.generateJWT(newUser.id).pipe(
                     map((token: string) => {
                       return {
                         token: token,
@@ -105,7 +105,7 @@ export class UserService {
     return this.validateUser(dto.username, dto.password).pipe(
       switchMap((user: User) => {
         if (user)
-          return this.authService.generateJWT(user).pipe(
+          return this.authService.generateJWT(user.id).pipe(
             map((token: string) => {
               return { token, user };
             }),

@@ -1,10 +1,4 @@
-import {
-  BadGatewayException,
-  forwardRef,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
@@ -23,8 +17,8 @@ export class AuthService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  generateJWT(user: User): Observable<string> {
-    return from(this.jwtService.signAsync({ sub: user.id }));
+  generateJWT(sub: string): Observable<string> {
+    return from(this.jwtService.signAsync({ sub }));
   }
 
   hashPassword(password: string): Observable<string> {
@@ -43,14 +37,10 @@ export class AuthService {
     return from(this.jwtService.verifyAsync(token)).pipe(
       switchMap((decoded: any) => {
         return from(
-          this.userRepository.findOne({
-            where: {
-              id: decoded.sub,
-            },
-          }),
+          this.userRepository.findOne({ where: { id: decoded.sub } }),
         ).pipe(
           map((user: User) => {
-            if (!user) return false;
+            if (!user) throw new UnauthorizedException('Token no longer valid');
             delete user.password;
             request.user = user;
             return true;
