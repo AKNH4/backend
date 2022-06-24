@@ -59,6 +59,24 @@ export class UserService {
     );
   }
 
+  login(dto: LoginDto): Observable<string> {
+    return from(
+      this.userRepository.findOne({ where: { username: dto.username } }),
+    ).pipe(
+      switchMap((user: User) => {
+        if (!user) throw new UnauthorizedException('Logindaten falsch');
+        return this.authService
+          .comparePasswords(dto.password, user.password)
+          .pipe(
+            switchMap((match: boolean) => {
+              if (!match) throw new UnauthorizedException('Logindaten falsch');
+              return this.authService.generateJWT(user.id);
+            }),
+          );
+      }),
+    );
+  }
+
   getUserById(id: string): Observable<User> {
     return from(this.userRepository.findOne({ where: { id } })).pipe(
       map((user: User) => {
@@ -101,19 +119,19 @@ export class UserService {
     );
   }
 
-  login(dto: LoginDto): Observable<LoginResponse> {
-    return this.validateUser(dto.username, dto.password).pipe(
-      switchMap((user: User) => {
-        if (user)
-          return this.authService.generateJWT(user.id).pipe(
-            map((token: string) => {
-              return { token, user };
-            }),
-          );
-        throw new UnauthorizedException('Falche Logindaten');
-      }),
-    );
-  }
+  // login(dto: LoginDto): Observable<LoginResponse> {
+  //   return this.validateUser(dto.username, dto.password).pipe(
+  //     switchMap((user: User) => {
+  //       if (user)
+  //         return this.authService.generateJWT(user.id).pipe(
+  //           map((token: string) => {
+  //             return { token, user };
+  //           }),
+  //         );
+  //       throw new UnauthorizedException('Falche Logindaten');
+  //     }),
+  //   );
+  // }
 
   validateUser(username: string, password: string): Observable<User> {
     username = username.toLowerCase();
@@ -138,58 +156,6 @@ export class UserService {
       }),
     );
   }
-
-  // changeUsername(
-  //   userId: string,
-  //   username: string,
-  // ): Observable<ResponseMessage> {
-  //   username = username.toLowerCase();
-  //   return from(this.userRepository.findOne({ where: { id: userId } })).pipe(
-  //     switchMap((user: User) => {
-  //       if (user.username === username) throw new BadRequestException();
-  //       return from(this.usernameExists(username)).pipe(
-  //         switchMap((exists: boolean) => {
-  //           if (exists)
-  //             throw new BadRequestException("Benutzername gibt's schon");
-  //           return from(
-  //             this.userRepository.update({ id: userId }, { username }),
-  //           ).pipe(
-  //             switchMap(() => {
-  //               return from(
-  //                 this.commentRepository.find({ where: { creator: user } }),
-  //               ).pipe(
-  //                 map((comments: Comment[]) => {
-  //                   console.table(comments);
-  //                   comments.forEach(async (comment: Comment) => {
-  //                     return await this.postRepository.update(
-  //                       { id: comment.id },
-  //                       { creator_name: username },
-  //                     );
-  //                   });
-  //                 }),
-  //               );
-  //             }),
-  //             switchMap(() => {
-  //               return from(
-  //                 this.postRepository.find({ where: { creator: user } }),
-  //               ).pipe(
-  //                 map((posts: IPost[]) => {
-  //                   posts.forEach(async (post: IPost) => {
-  //                     return await this.postRepository.update(
-  //                       { id: post.id },
-  //                       { creator_name: username },
-  //                     );
-  //                   });
-  //                   return { msg: 'Benutzername geändert!' };
-  //                 }),
-  //               );
-  //             }),
-  //           );
-  //         }),
-  //       );
-  //     }),
-  //   );
-  // }
 
   changePassword(
     userId: string,
@@ -218,8 +184,8 @@ export class UserService {
   getUserData(userId: string): Observable<User> {
     return from(this.userRepository.findOne({ where: { id: userId } })).pipe(
       map((user: User) => {
-        const { password, ...res } = user;
-        return res;
+        delete user.password;
+        return user;
       }),
     );
   }

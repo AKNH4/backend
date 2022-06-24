@@ -9,7 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { map, Observable, of } from 'rxjs';
+import { from, map, Observable, of } from 'rxjs';
 import AuthGuard from '../../auth/guard/auth.guard';
 import { GetUser } from '../../decorator/getuser.decorator';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
@@ -37,8 +37,8 @@ export class UserController {
   }
 
   @Post('/login')
-  login(@Body() dto: LoginDto): Observable<LoginResponse> {
-    return this.userService.login(dto);
+  login(@Body() dto: LoginDto): Observable<{ token: string }> {
+    return this.userService.login(dto).pipe(map((token) => ({ token })));
   }
 
   @UseGuards(AuthGuard)
