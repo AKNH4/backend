@@ -10,10 +10,10 @@ export declare class PostController {
     private postService;
     constructor(postService: PostService);
     getAllPosts(): Observable<IPost[]>;
+    getById(id: string): Observable<IPost>;
     createPost(dto: CreatePostDto, user: User): Observable<IPost>;
     delete(idParam: string, user: User): Observable<ResponseMessage>;
     getAllFromUser(user: User): Observable<IPost[]>;
-    getById(id: string): Observable<IPost>;
     uploadFile(file: Express.Multer.File): string;
-    getPostImage(res: Response): void;
+    getPostImage(res: Response, param: string): Observable<void>;
 }

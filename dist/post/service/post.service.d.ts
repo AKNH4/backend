@@ -25,7 +25,6 @@ export declare class PostService {
         text?: string;
         creator?: UserEntity;
         creator_name?: string;
-        postImage?: string;
         created_at?: Date;
     }>;
     updatePost(postId: string, dto: UpdatePostDto): Observable<ResponseMessage>;

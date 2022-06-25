@@ -17,9 +17,5 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateCommentDto.prototype, "text", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateCommentDto.prototype, "postId", void 0);
 exports.CreateCommentDto = CreateCommentDto;
 //# sourceMappingURL=create-comment.dto.js.map

@@ -1,7 +1,6 @@
-import { ParseUUIDPipe, ValidationPipe } from '@nestjs/common';
+import { Logger, ParseUUIDPipe, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
-import * as csurf from 'csurf';
 import { AppModule } from './app.module';
 import { readFileSync } from 'fs';
 const helmet = require('helmet');
@@ -20,15 +19,13 @@ async function bootstrap() {
   });
 
   const PORT = 8080;
-
-  // app.use(csurf())
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use(helmet());
   app.use(cookieParser());
   app.setGlobalPrefix('api');
-  await app.listen(PORT, '0.0.0.0', () =>
-    console.log(`Server listening on port ${PORT}`),
-  );
+  await app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
 }
 bootstrap();

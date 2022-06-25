@@ -4,7 +4,6 @@ export declare class PostEntity {
     id: string;
     title: string;
     text: string;
-    postImage?: string;
     creator: UserEntity;
     comments: CommentEntity[];
     creator_name: string;

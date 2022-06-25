@@ -13,7 +13,9 @@ async function bootstrap() {
     app.use(helmet());
     app.use(cookieParser());
     app.setGlobalPrefix('api');
-    await app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on port ${PORT}`));
+    await app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server listening on port ${PORT}`);
+    });
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

@@ -4,10 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { from, map, Observable } from 'rxjs';
 import AuthGuard from '../../auth/guard/auth.guard';
 import { GetUser } from '../../decorator/getuser.decorator';
 import { User } from '../../user/entity/user.interface';
@@ -26,20 +27,23 @@ export class CommentController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('/create')
+  @Post(':id')
   createComment(
     @Body() dto: CreateCommentDto,
     @GetUser() user: User,
+    @Param('id', ParseUUIDPipe) postId: string,
   ): Observable<Comment> {
-    return this.commentService.createComment(user, dto);
+    return this.commentService.createComment(user, dto, postId);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
   deleteComment(
     @GetUser() user: User,
-    @Param('id') commentId: string,
-  ): Promise<Comment> {
-    return this.commentService.deleteCommentById(user, commentId);
+    @Param('id', ParseUUIDPipe) commentId: string,
+  ): Observable<ResponseMessage> {
+    return this.commentService
+      .deleteCommentById(user.id, commentId)
+      .pipe(map((msg: string) => ({ msg })));
   }
 }

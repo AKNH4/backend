@@ -29,7 +29,7 @@ let UserController = class UserController {
         return (0, rxjs_1.of)(user);
     }
     signUp(dto) {
-        return this.userService.signUp(dto);
+        return this.userService.signUp(dto).pipe((0, rxjs_1.map)((token) => ({ token })));
     }
     login(dto) {
         return this.userService.login(dto).pipe((0, rxjs_1.map)((token) => ({ token })));

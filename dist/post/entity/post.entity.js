@@ -28,10 +28,6 @@ __decorate([
     __metadata("design:type", String)
 ], PostEntity.prototype, "text", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], PostEntity.prototype, "postImage", void 0);
-__decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.UserEntity, (user) => user.posts, {
         onDelete: 'CASCADE',
     }),

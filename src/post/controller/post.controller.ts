@@ -15,7 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import path from 'path';
-import { from, map, Observable } from 'rxjs';
+import { from, map, Observable, of } from 'rxjs';
 import AuthGuard from '../../auth/guard/auth.guard';
 import { GetUser } from '../../decorator/getuser.decorator';
 import { User } from '../../user/entity/user.interface';
@@ -26,6 +26,7 @@ import { UpdatePostDto } from '../dto/updatepost.dto';
 import { IPost } from '../entity/post.interface';
 import { PostService } from '../service/post.service';
 import { Response } from 'express';
+import { v4 } from 'uuid';
 @Controller('post')
 export class PostController {
   constructor(private postService: PostService) {}
@@ -33,6 +34,11 @@ export class PostController {
   @Get()
   getAllPosts(): Observable<IPost[]> {
     return this.postService.findAll();
+  }
+
+  @Get('/:id')
+  getById(@Param('id', ParseUUIDPipe) id: string): Observable<IPost> {
+    return this.postService.getPostByIdWithComments(id);
   }
 
   @UseGuards(AuthGuard)
@@ -47,7 +53,7 @@ export class PostController {
   @UseGuards(AuthGuard)
   @Delete('/delete/:id')
   delete(
-    @Param('id') idParam: string,
+    @Param('id', ParseUUIDPipe) idParam: string,
     @GetUser() user: User,
   ): Observable<ResponseMessage> {
     return this.postService.deletePost(idParam, user);
@@ -59,26 +65,13 @@ export class PostController {
     return this.postService.getAllFromUser(user);
   }
 
-  @Get('/:id')
-  getById(@Param('id') id: string): Observable<IPost> {
-    return this.postService.getPostByIdWithComments(id);
-  }
-
-  // @Put('/update/:id')
-  // updatePost(
-  //   @Body() dto: UpdatePostDto,
-  //   @Param('id') param: string,
-  // ): Observable<ResponseMessage> {
-  //   return this.postService.updatePost(param, dto);
-  // }
-
   @Post('/upload')
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
         destination: './uploads/profileimages',
         filename: (req, file, cb) => {
-          cb(null, `${file.filename}`);
+          cb(null, `${file.filename}${v4()}.png`);
         },
       }),
     }),
@@ -88,5 +81,12 @@ export class PostController {
   }
 
   @Get('/image/:id')
-  getPostImage(@Res() res: Response) {}
+  getPostImage(
+    @Res({ passthrough: true }) res: Response,
+    @Param('id') param: string,
+  ) {
+    return of(
+      res.sendFile(process.cwd(), `./uploads${(<string>param) as string}`),
+    );
+  }
 }

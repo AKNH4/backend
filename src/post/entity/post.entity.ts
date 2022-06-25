@@ -22,9 +22,6 @@ export class PostEntity {
   @Column()
   text: string;
 
-  @Column({ nullable: true })
-  postImage?: string;
-
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.posts, {
     onDelete: 'CASCADE',
   })

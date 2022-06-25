@@ -26,11 +26,13 @@ let CommentController = class CommentController {
     getCommentsByPostId(postId) {
         return this.commentService.getCommentsByPostId(postId);
     }
-    createComment(dto, user) {
-        return this.commentService.createComment(user, dto);
+    createComment(dto, user, postId) {
+        return this.commentService.createComment(user, dto, postId);
     }
     deleteComment(user, commentId) {
-        return this.commentService.deleteCommentById(user, commentId);
+        return this.commentService
+            .deleteCommentById(user.id, commentId)
+            .pipe((0, rxjs_1.map)((msg) => ({ msg })));
     }
 };
 __decorate([
@@ -42,21 +44,22 @@ __decorate([
 ], CommentController.prototype, "getCommentsByPostId", null);
 __decorate([
     (0, common_1.UseGuards)(auth_guard_1.default),
-    (0, common_1.Post)('/create'),
+    (0, common_1.Post)(':id'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, getuser_decorator_1.GetUser)()),
+    __param(2, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_comment_dto_1.CreateCommentDto, Object]),
+    __metadata("design:paramtypes", [create_comment_dto_1.CreateCommentDto, Object, String]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], CommentController.prototype, "createComment", null);
 __decorate([
     (0, common_1.UseGuards)(auth_guard_1.default),
     (0, common_1.Delete)(':id'),
     __param(0, (0, getuser_decorator_1.GetUser)()),
-    __param(1, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", rxjs_1.Observable)
 ], CommentController.prototype, "deleteComment", null);
 CommentController = __decorate([
     (0, common_1.Controller)('comment'),

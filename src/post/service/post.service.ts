@@ -50,7 +50,6 @@ export class PostService {
         title: dto.title,
         creator_name: user.username,
         creator: user,
-        // postImage: dto.postImage,
       }),
     ).pipe(
       map((createdPost: IPost) => {

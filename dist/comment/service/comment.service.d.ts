@@ -6,10 +6,10 @@ import { CreateCommentDto } from '../dto';
 import { CommentEntity } from '../entity/comment.entity';
 import { Comment } from '../entity/comment.interface';
 export declare class CommentService {
-    private commentRepsitory;
     private postService;
-    constructor(commentRepsitory: Repository<CommentEntity>, postService: PostService);
+    private readonly commentRepsitory;
+    constructor(postService: PostService, commentRepsitory: Repository<CommentEntity>);
     getCommentsByPostId(postId: string): Observable<Comment[]>;
-    createComment(user: User, dto: CreateCommentDto): Observable<Comment>;
-    deleteCommentById(user: User, commentId: string): Promise<Comment>;
+    createComment(user: User, dto: CreateCommentDto, postId: string): Observable<Comment>;
+    deleteCommentById(userId: string, commentId: string): Observable<string>;
 }
