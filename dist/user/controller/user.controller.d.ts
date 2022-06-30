@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
-import { SignUpDto } from '../dto/sign-up.dto';
+import { SignUpDto } from '../dto/signUp.dto';
 import { ResponseMessage } from '../../common/dto/';
 import { User } from '../entity/user.interface';
 import { UserService } from '../service/user.service';

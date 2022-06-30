@@ -20,13 +20,11 @@ import AuthGuard from '../../auth/guard/auth.guard';
 import { GetUser } from '../../decorator/getuser.decorator';
 import { User } from '../../user/entity/user.interface';
 import { ResponseMessage } from '../../common/dto';
-
-import { CreatePostDto } from '../dto/createpost.dto';
-import { UpdatePostDto } from '../dto/updatepost.dto';
 import { IPost } from '../entity/post.interface';
 import { PostService } from '../service/post.service';
 import { Response } from 'express';
 import { v4 } from 'uuid';
+import { CreatePostDto } from '../dto';
 @Controller('post')
 export class PostController {
   constructor(private postService: PostService) {}
@@ -36,13 +34,8 @@ export class PostController {
     return this.postService.findAll();
   }
 
-  @Get('/:id')
-  getById(@Param('id', ParseUUIDPipe) id: string): Observable<IPost> {
-    return this.postService.getPostByIdWithComments(id);
-  }
-
   @UseGuards(AuthGuard)
-  @Post('/create')
+  @Post()
   createPost(
     @Body() dto: CreatePostDto,
     @GetUser() user: User,
@@ -51,21 +44,23 @@ export class PostController {
   }
 
   @UseGuards(AuthGuard)
-  @Delete('/delete/:id')
+  @Delete(':id')
   delete(
     @Param('id', ParseUUIDPipe) idParam: string,
     @GetUser() user: User,
   ): Observable<ResponseMessage> {
-    return this.postService.deletePost(idParam, user);
+    return this.postService
+      .deletePost(idParam, user)
+      .pipe(map((msg: string) => ({ msg })));
   }
 
   @UseGuards(AuthGuard)
-  @Get('/get-all-from-user')
+  @Get('user-posts')
   getAllFromUser(@GetUser() user: User): Observable<IPost[]> {
-    return this.postService.getAllFromUser(user);
+    return this.postService.getUserPosts(user);
   }
 
-  @Post('/upload')
+  @Post('upload')
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
@@ -80,7 +75,7 @@ export class PostController {
     return file.filename;
   }
 
-  @Get('/image/:id')
+  @Get('image/:id')
   getPostImage(
     @Res({ passthrough: true }) res: Response,
     @Param('id') param: string,
@@ -88,5 +83,10 @@ export class PostController {
     return of(
       res.sendFile(process.cwd(), `./uploads${(<string>param) as string}`),
     );
+  }
+
+  @Get(':id')
+  getById(@Param('id', ParseUUIDPipe) id: string): Observable<IPost> {
+    return this.postService.findPostComments(id);
   }
 }

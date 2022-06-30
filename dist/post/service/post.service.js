@@ -18,11 +18,11 @@ const typeorm_1 = require("@nestjs/typeorm");
 const rxjs_1 = require("rxjs");
 const typeorm_2 = require("typeorm");
 const post_entity_1 = require("../entity/post.entity");
-const comment_service_1 = require("../../comment/service/comment.service");
+const entity_1 = require("../entity");
 let PostService = class PostService {
-    constructor(postRepository, commentService) {
+    constructor(postRepository, commentRepository) {
         this.postRepository = postRepository;
-        this.commentService = commentService;
+        this.commentRepository = commentRepository;
     }
     findAll() {
         return (0, rxjs_1.from)(this.postRepository.find({
@@ -51,15 +51,13 @@ let PostService = class PostService {
             loadRelationIds: { relations: ['creator'] },
         })).pipe((0, rxjs_1.switchMap)((post) => {
             if (!post)
-                throw new common_1.BadRequestException('Post gibt es nicht');
+                throw new common_1.NotFoundException('Post gibt es nicht');
             if (post.creator !== user.id)
-                throw new common_1.BadRequestException('Is nich deiner!');
-            return (0, rxjs_1.from)(this.postRepository.delete({ id: post.id, creator: user })).pipe((0, rxjs_1.map)((res) => {
-                return { msg: 'Gelöcht!' };
-            }));
+                throw new common_1.BadRequestException('Ist nicth deiner!');
+            return (0, rxjs_1.from)(this.postRepository.delete({ id: post.id, creator: user })).pipe((0, rxjs_1.map)(() => 'Gelöcht!'));
         }));
     }
-    getAllFromUser(user) {
+    getUserPosts(user) {
         return (0, rxjs_1.from)(this.postRepository.find({
             where: { creator: { id: user.id } },
             order: {
@@ -69,42 +67,31 @@ let PostService = class PostService {
             loadRelationIds: { relations: ['creator'] },
         }));
     }
-    getById(id) {
-        return (0, rxjs_1.from)(this.postRepository.findOne({ where: { id } })).pipe((0, rxjs_1.map)((post) => {
-            if (!post)
-                throw new common_1.NotFoundException('Post gibt es nicht');
-            return post;
-        }));
-    }
-    getPostByIdWithComments(postId) {
+    findPostComments(postId) {
         return (0, rxjs_1.from)(this.postRepository.findOne({
             where: {
                 id: postId,
             },
         })).pipe((0, rxjs_1.switchMap)((post) => {
             if (!post)
-                throw new common_1.BadRequestException('Post mit dieser id gibt es nicht');
-            return (0, rxjs_1.from)(this.commentService.getCommentsByPostId(post.id)).pipe((0, rxjs_1.map)((comments) => (Object.assign(Object.assign({}, post), { comments: [...comments] }))));
+                throw new common_1.NotFoundException('Post mit dieser id gibt es nicht');
+            return (0, rxjs_1.from)(this.commentRepository.find({ where: { post: { id: postId } } })).pipe((0, rxjs_1.map)((comments) => (Object.assign(Object.assign({}, post), { comments: [...comments] }))));
         }));
     }
     updatePost(postId, dto) {
         return (0, rxjs_1.from)(this.postRepository.findOne({ where: { id: postId } })).pipe((0, rxjs_1.switchMap)((post) => {
             if (!post)
                 throw new common_1.BadRequestException("Post mit dieser id gibt's nicht");
-            return (0, rxjs_1.from)(this.postRepository.update({ id: postId }, { title: dto.title, text: dto.text })).pipe((0, rxjs_1.map)((res) => {
-                return { msg: 'Post aktualisiert' };
-            }));
+            return (0, rxjs_1.from)(this.postRepository.update({ id: postId }, { title: dto.title, text: dto.text })).pipe((0, rxjs_1.map)(() => 'Post aktualisiert'));
         }));
     }
-    isPostOwner(id, user) { }
-    uploadImage(filename) { }
 };
 PostService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(post_entity_1.PostEntity)),
-    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => comment_service_1.CommentService))),
+    __param(1, (0, typeorm_1.InjectRepository)(entity_1.CommentEntity)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        comment_service_1.CommentService])
+        typeorm_2.Repository])
 ], PostService);
 exports.PostService = PostService;
 //# sourceMappingURL=post.service.js.map

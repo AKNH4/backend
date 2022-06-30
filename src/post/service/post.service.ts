@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   forwardRef,
+  Global,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -11,24 +12,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, from, map, Observable, switchMap } from 'rxjs';
 
 import { DeleteResult, Like, Repository, UpdateResult } from 'typeorm';
-import { CommentEntity } from '../../comment/entity/comment.entity';
-import { Comment } from '../../comment/entity/comment.interface';
-import { UserEntity } from '../../user/entity/user.entity';
 import { User } from '../../user/entity/user.interface';
 import { ResponseMessage } from '../../common/dto';
 import { CreatePostDto } from '../dto/createpost.dto';
 import { UpdatePostDto } from '../dto/updatepost.dto';
 import { PostEntity } from '../entity/post.entity';
 import { IPost } from '../entity/post.interface';
-import { CommentService } from 'src/comment/service/comment.service';
+import { Comment } from '../entity/comment.interface';
+import { CommentService } from './comment.service';
+import { PostRepository } from '../repository/post.repository';
+import { CommentEntity } from '../entity';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
-    @Inject(forwardRef(() => CommentService))
-    private commentService: CommentService,
+    @InjectRepository(CommentEntity)
+    private commentRepository: Repository<CommentEntity>,
   ) {}
 
   findAll(): Observable<IPost[]> {
@@ -43,7 +44,7 @@ export class PostService {
     );
   }
 
-  createPost(dto: CreatePostDto, user: User): Observable<IPost> {
+  createPost(dto: Readonly<CreatePostDto>, user: User): Observable<IPost> {
     return from(
       this.postRepository.save({
         text: dto.text,
@@ -59,7 +60,7 @@ export class PostService {
     );
   }
 
-  deletePost(postId: string, user: User): Observable<ResponseMessage> {
+  deletePost(postId: string, user: User): Observable<string> {
     return from(
       this.postRepository.findOne({
         where: { id: postId },
@@ -68,21 +69,17 @@ export class PostService {
       }),
     ).pipe(
       switchMap((post: any) => {
-        if (!post) throw new BadRequestException('Post gibt es nicht');
+        if (!post) throw new NotFoundException('Post gibt es nicht');
         if (post.creator !== user.id)
-          throw new BadRequestException('Is nich deiner!');
+          throw new BadRequestException('Ist nicth deiner!');
         return from(
           this.postRepository.delete({ id: post.id, creator: user }),
-        ).pipe(
-          map((res: DeleteResult) => {
-            return { msg: 'Gelöcht!' };
-          }),
-        );
+        ).pipe(map(() => 'Gelöcht!'));
       }),
     );
   }
 
-  getAllFromUser(user: User): Observable<IPost[]> {
+  getUserPosts(user: User): Observable<IPost[]> {
     return from(
       this.postRepository.find({
         where: { creator: { id: user.id } },
@@ -95,16 +92,7 @@ export class PostService {
     );
   }
 
-  getById(id: string): Observable<IPost> {
-    return from(this.postRepository.findOne({ where: { id } })).pipe(
-      map((post: IPost) => {
-        if (!post) throw new NotFoundException('Post gibt es nicht');
-        return post;
-      }),
-    );
-  }
-
-  getPostByIdWithComments(postId: string) {
+  findPostComments(postId: string): Observable<any> {
     return from(
       this.postRepository.findOne({
         where: {
@@ -114,15 +102,17 @@ export class PostService {
     ).pipe(
       switchMap((post: IPost) => {
         if (!post)
-          throw new BadRequestException('Post mit dieser id gibt es nicht');
-        return from(this.commentService.getCommentsByPostId(post.id)).pipe(
+          throw new NotFoundException('Post mit dieser id gibt es nicht');
+        return from(
+          this.commentRepository.find({ where: { post: { id: postId } } }),
+        ).pipe(
           map((comments: Comment[]) => ({ ...post, comments: [...comments] })),
         );
       }),
     );
   }
 
-  updatePost(postId: string, dto: UpdatePostDto): Observable<ResponseMessage> {
+  updatePost(postId: string, dto: UpdatePostDto): Observable<string> {
     return from(this.postRepository.findOne({ where: { id: postId } })).pipe(
       switchMap((post: IPost) => {
         if (!post)
@@ -132,16 +122,8 @@ export class PostService {
             { id: postId },
             { title: dto.title, text: dto.text },
           ),
-        ).pipe(
-          map((res: UpdateResult) => {
-            return { msg: 'Post aktualisiert' };
-          }),
-        );
+        ).pipe(map(() => 'Post aktualisiert'));
       }),
     );
   }
-
-  isPostOwner(id: string, user: User) {}
-
-  uploadImage(filename: string) {}
 }

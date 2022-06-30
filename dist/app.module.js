@@ -17,7 +17,7 @@ const auth_module_1 = require("./auth/auth.module");
 const ormconfig_1 = require("./config/ormconfig");
 const user_module_1 = require("./user/user.module");
 const post_module_1 = require("./post/post.module");
-const comment_module_1 = require("./comment/comment.module");
+const weather_module_1 = require("./weather/weather.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -31,7 +31,7 @@ AppModule = __decorate([
             user_module_1.UserModule,
             auth_module_1.AuthModule,
             post_module_1.PostModule,
-            comment_module_1.CommentModule,
+            weather_module_1.WeatherModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

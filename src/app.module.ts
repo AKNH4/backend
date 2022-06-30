@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -8,15 +8,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import config from './config/ormconfig';
-import { UserEntity } from './user/entity/user.entity';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
-import { PostEntity } from './post/entity/post.entity';
-import { CommentModule } from './comment/comment.module';
-import { MulterModule } from '@nestjs/platform-express';
-import { PostService } from './post/service/post.service';
-import { CommentService } from './comment/service/comment.service';
-
+import { WeatherModule } from './weather/weather.module';
 @Module({
   imports: [
     // TypeOrmModule.forRoot({
@@ -42,7 +36,7 @@ import { CommentService } from './comment/service/comment.service';
     UserModule,
     AuthModule,
     PostModule,
-    CommentModule,
+    WeatherModule,
   ],
   controllers: [AppController],
   providers: [AppService],

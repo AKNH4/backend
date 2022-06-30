@@ -1,5 +1,5 @@
-import { CommentEntity } from '../../comment/entity/comment.entity';
 import { UserEntity } from '../../user/entity/user.entity';
+import { CommentEntity } from './comment.entity';
 export declare class PostEntity {
     id: string;
     title: string;

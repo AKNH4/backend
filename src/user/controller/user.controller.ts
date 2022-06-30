@@ -1,21 +1,10 @@
 import { HttpCode, ParseUUIDPipe } from '@nestjs/common';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { from, map, Observable, of } from 'rxjs';
 import AuthGuard from '../../auth/guard/auth.guard';
 import { GetUser } from '../../decorator/getuser.decorator';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
-import { ChangeUsernameDto } from '../dto/changeUsername.dto';
-import { SignUpDto } from '../dto/sign-up.dto';
-import { LoginResponse } from '../dto/Login.response';
+import { SignUpDto } from '../dto/signUp.dto';
 import { ResponseMessage } from '../../common/dto/';
 import { User } from '../entity/user.interface';
 import { UserService } from '../service/user.service';
@@ -53,6 +42,6 @@ export class UserController {
     @GetUser() user: User,
     @Body() dto: ChangePasswordDto,
   ): Observable<ResponseMessage> {
-    return this.userService.changePassword(user.id, dto.password);
+    return this.userService.changePassword(user.id, dto);
   }
 }

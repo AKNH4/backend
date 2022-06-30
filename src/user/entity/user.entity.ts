@@ -1,3 +1,4 @@
+import { CommentEntity } from 'src/post/entity/comment.entity';
 import {
   BeforeInsert,
   Column,
@@ -6,7 +7,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CommentEntity } from '../../comment/entity/comment.entity';
 import { PostEntity } from '../../post/entity/post.entity';
 import { IPost } from '../../post/entity/post.interface';
 

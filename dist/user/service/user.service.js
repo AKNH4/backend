@@ -66,11 +66,11 @@ let UserService = class UserService {
             throw new common_1.InternalServerErrorException('Failed!!!');
         }));
     }
-    changePassword(userId, password) {
+    changePassword(userId, dto) {
         return (0, rxjs_1.from)(this.userRepository.findOne({ where: { id: userId } })).pipe((0, rxjs_1.switchMap)((user) => {
             if (!user)
                 throw new common_1.BadRequestException("Benutzer mit der id gibt's nicht");
-            return (0, rxjs_1.from)(this.authService.hashPassword(password)).pipe((0, rxjs_1.switchMap)((hash) => {
+            return (0, rxjs_1.from)(this.authService.hashPassword(dto.password)).pipe((0, rxjs_1.switchMap)((hash) => {
                 return (0, rxjs_1.from)(this.userRepository.update({ id: userId }, { password: hash })).pipe((0, rxjs_1.map)((res) => {
                     if (!res)
                         throw new common_1.InternalServerErrorException('OOps');

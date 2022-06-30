@@ -1,5 +1,5 @@
+import { CommentEntity } from 'src/post/entity/comment.entity';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
-import { CommentEntity } from '../comment/entity/comment.entity';
 import { PostEntity } from '../post/entity/post.entity';
 import { UserEntity } from '../user/entity/user.entity';
 
@@ -9,6 +9,7 @@ const config: SqliteConnectionOptions = {
   // database: '/root/database.db',
   entities: ['dist/src/**/*.entity.js', UserEntity, PostEntity, CommentEntity],
   synchronize: true,
-  migrations: ['src/dist/db/migrations/*.js'],
+  // migrations: ['src/dist/db/migrations/*.js',],
+  // migrations: ['../migrations/*.ts'],
 };
 export default config;

@@ -10,8 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserEntity = void 0;
+const comment_entity_1 = require("../../post/entity/comment.entity");
 const typeorm_1 = require("typeorm");
-const comment_entity_1 = require("../../comment/entity/comment.entity");
 const post_entity_1 = require("../../post/entity/post.entity");
 let UserEntity = class UserEntity {
 };

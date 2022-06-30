@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostEntity = void 0;
 const typeorm_1 = require("typeorm");
-const comment_entity_1 = require("../../comment/entity/comment.entity");
 const user_entity_1 = require("../../user/entity/user.entity");
+const comment_entity_1 = require("./comment.entity");
 let PostEntity = class PostEntity {
 };
 __decorate([

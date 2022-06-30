@@ -9,22 +9,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const comment_module_1 = require("../comment/comment.module");
-const comment_entity_1 = require("../comment/entity/comment.entity");
+const comment_controller_1 = require("./controller/comment.controller");
 const post_controller_1 = require("./controller/post.controller");
+const comment_entity_1 = require("./entity/comment.entity");
 const post_entity_1 = require("./entity/post.entity");
+const post_repository_1 = require("./repository/post.repository");
+const comment_service_1 = require("./service/comment.service");
 const post_service_1 = require("./service/post.service");
 let PostModule = class PostModule {
 };
 PostModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([post_entity_1.PostEntity, comment_entity_1.CommentEntity]),
-            comment_module_1.CommentModule,
+            typeorm_1.TypeOrmModule.forFeature([post_entity_1.PostEntity, comment_entity_1.CommentEntity, post_repository_1.PostRepository]),
         ],
-        providers: [post_service_1.PostService],
-        controllers: [post_controller_1.PostController],
-        exports: [post_service_1.PostService],
+        providers: [post_service_1.PostService, comment_service_1.CommentService],
+        controllers: [post_controller_1.PostController, comment_controller_1.CommentController],
+        exports: [post_service_1.PostService, comment_service_1.CommentService],
     })
 ], PostModule);
 exports.PostModule = PostModule;

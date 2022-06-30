@@ -8,11 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, from, map, Observable, switchMap } from 'rxjs';
 import { Repository, UpdateResult } from 'typeorm';
 import { AuthService } from '../../auth/service/auth.service';
-import { SignUpDto } from '../dto/sign-up.dto';
+import { SignUpDto } from '../dto/signUp.dto';
 import { LoginDto } from '../dto/Login.dto';
 import { UserEntity } from '../entity/user.entity';
 import { User } from '../entity/user.interface';
 import { ResponseMessage } from 'src/common/';
+import { ChangePasswordDto } from '../dto/changePassword.dto';
 
 @Injectable()
 export class UserService {
@@ -88,13 +89,13 @@ export class UserService {
 
   changePassword(
     userId: string,
-    password: string,
+    dto: ChangePasswordDto,
   ): Observable<ResponseMessage> {
     return from(this.userRepository.findOne({ where: { id: userId } })).pipe(
       switchMap((user: User) => {
         if (!user)
           throw new BadRequestException("Benutzer mit der id gibt's nicht");
-        return from(this.authService.hashPassword(password)).pipe(
+        return from(this.authService.hashPassword(dto.password)).pipe(
           switchMap((hash: string) => {
             return from(
               this.userRepository.update({ id: userId }, { password: hash }),

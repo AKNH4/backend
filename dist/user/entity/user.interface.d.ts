@@ -1,4 +1,4 @@
-import { CommentEntity } from '../../comment/entity/comment.entity';
+import { CommentEntity } from 'src/post/entity/comment.entity';
 import { PostEntity } from '../../post/entity/post.entity';
 export interface User {
     id?: string;
