@@ -34,6 +34,14 @@ let AuthService = class AuthService {
     comparePasswords(password, storedPassword) {
         return (0, rxjs_1.from)((0, bcrypt_1.compare)(password, storedPassword));
     }
+    validateUser(username, password) {
+        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { username } })).pipe((0, rxjs_1.switchMap)((user) => this.comparePasswords(password, user.password).pipe((0, rxjs_1.map)((passwordMatch) => {
+            if (passwordMatch) {
+                delete user.password;
+                return user;
+            }
+        }))));
+    }
     validateRequest(request) {
         var _a;
         const token = (_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
@@ -47,7 +55,7 @@ let AuthService = class AuthService {
                 request.user = user;
                 return true;
             }));
-        }), (0, rxjs_1.catchError)((err) => {
+        }), (0, rxjs_1.catchError)(() => {
             throw new common_1.UnauthorizedException('Token invalid');
         }));
     }

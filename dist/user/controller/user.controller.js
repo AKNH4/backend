@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
+const common_2 = require("@nestjs/common");
 const rxjs_1 = require("rxjs");
 const auth_guard_1 = require("../../auth/guard/auth.guard");
 const getuser_decorator_1 = require("../../decorator/getuser.decorator");
@@ -25,8 +26,11 @@ let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
     }
-    getUserData(user) {
-        return (0, rxjs_1.of)(user);
+    findAll() {
+        return this.userService.findAll();
+    }
+    getUserData(user, property) {
+        return property ? (0, rxjs_1.of)({ [property]: user[property] }) : (0, rxjs_1.of)(user);
     }
     signUp(dto) {
         return this.userService.signUp(dto).pipe((0, rxjs_1.map)((token) => ({ token })));
@@ -34,54 +38,65 @@ let UserController = class UserController {
     login(dto) {
         return this.userService.login(dto).pipe((0, rxjs_1.map)((token) => ({ token })));
     }
-    deleteUser(user) {
-        return this.userService.deleteUser(user);
+    deleteUser(userId) {
+        return this.userService
+            .deleteUser(userId)
+            .pipe((0, rxjs_1.map)((msg) => ({ msg })));
     }
-    changePassword(user, dto) {
-        return this.userService.changePassword(user.id, dto);
+    changePassword(userId, dto) {
+        return this.userService
+            .changePassword(userId, dto)
+            .pipe((0, rxjs_1.map)((msg) => ({ msg })));
     }
 };
 __decorate([
-    (0, common_1.Get)('/data'),
-    (0, common_1.UseGuards)(auth_guard_1.default),
-    __param(0, (0, getuser_decorator_1.GetUser)()),
+    (0, common_2.Get)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", rxjs_1.Observable)
+], UserController.prototype, "findAll", null);
+__decorate([
+    (0, common_2.Get)('/data'),
+    (0, common_2.UseGuards)(auth_guard_1.default),
+    __param(0, (0, getuser_decorator_1.GetUser)()),
+    __param(1, (0, common_1.Query)('p')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "getUserData", null);
 __decorate([
-    (0, common_1.Post)('/sign-up'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_2.Post)('/sign-up'),
+    __param(0, (0, common_2.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [signUp_dto_1.SignUpDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "signUp", null);
 __decorate([
-    (0, common_1.Post)('/login'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_2.Post)('/login'),
+    __param(0, (0, common_2.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Login_dto_1.LoginDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "login", null);
 __decorate([
-    (0, common_1.UseGuards)(auth_guard_1.default),
-    (0, common_1.Delete)('/delete'),
-    __param(0, (0, getuser_decorator_1.GetUser)()),
+    (0, common_2.UseGuards)(auth_guard_1.default),
+    (0, common_2.Delete)('/delete'),
+    __param(0, (0, getuser_decorator_1.GetUser)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "deleteUser", null);
 __decorate([
-    (0, common_1.UseGuards)(auth_guard_1.default),
-    (0, common_1.Post)('/change-password'),
-    __param(0, (0, getuser_decorator_1.GetUser)()),
-    __param(1, (0, common_1.Body)()),
+    (0, common_2.UseGuards)(auth_guard_1.default),
+    (0, common_2.Post)('/change-password'),
+    __param(0, (0, getuser_decorator_1.GetUser)('id')),
+    __param(1, (0, common_2.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, changePassword_dto_1.ChangePasswordDto]),
+    __metadata("design:paramtypes", [String, changePassword_dto_1.ChangePasswordDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "changePassword", null);
 UserController = __decorate([
-    (0, common_1.Controller)('user'),
+    (0, common_2.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);
 exports.UserController = UserController;

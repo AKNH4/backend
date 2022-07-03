@@ -3,8 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
 import { Request } from 'express';
-import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
-import { UserService } from 'src/user/service/user.service';
+import { catchError, from, map, Observable, switchMap } from 'rxjs';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../../user/entity/user.entity';
 import { User } from '../../user/entity/user.interface';
@@ -25,15 +24,31 @@ export class AuthService {
     return from(hash(password, 12));
   }
 
-  comparePasswords(password: string, storedPassword: string): Observable<any> {
+  comparePasswords(
+    password: string,
+    storedPassword: string,
+  ): Observable<boolean> {
     return from(compare(password, storedPassword));
+  }
+
+  validateUser(username: string, password: string): Observable<User> {
+    return from(this.userRepository.findOne({ where: { username } })).pipe(
+      switchMap((user: User) =>
+        this.comparePasswords(password, user.password).pipe(
+          map((passwordMatch: boolean) => {
+            if (passwordMatch) {
+              delete user.password;
+              return user;
+            }
+          }),
+        ),
+      ),
+    );
   }
 
   validateRequest(request: Request): Observable<boolean> {
     const token: string = request.headers.authorization?.split(' ')[1];
-
     if (!token) throw new UnauthorizedException('Token missing');
-
     return from(this.jwtService.verifyAsync(token)).pipe(
       switchMap((decoded: any) => {
         return from(
@@ -47,7 +62,7 @@ export class AuthService {
           }),
         );
       }),
-      catchError((err: any) => {
+      catchError(() => {
         throw new UnauthorizedException('Token invalid');
       }),
     );

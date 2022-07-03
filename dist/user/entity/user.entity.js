@@ -30,7 +30,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
-], UserEntity.prototype, "registered", void 0);
+], UserEntity.prototype, "registeredAt", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => post_entity_1.PostEntity, (post) => post.creator),
     __metadata("design:type", Array)

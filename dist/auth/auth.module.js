@@ -19,9 +19,11 @@ AuthModule = AuthModule_1 = __decorate([
     (0, common_1.Global)(),
     (0, common_1.Module)({
         imports: [
-            jwt_1.JwtModule.register({
-                secret: '1234',
-                signOptions: { expiresIn: '2d' },
+            jwt_1.JwtModule.registerAsync({
+                useFactory: async () => ({
+                    secret: 'alskjfh8790aoPyfoansdfAKDS87yno87nq6ftqof8pqnf6teptnPNF',
+                    signOptions: { expiresIn: '7d' },
+                }),
             }),
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.UserEntity]),
         ],

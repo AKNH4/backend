@@ -5,7 +5,6 @@ import { SignUpDto } from '../dto/signUp.dto';
 import { LoginDto } from '../dto/Login.dto';
 import { UserEntity } from '../entity/user.entity';
 import { User } from '../entity/user.interface';
-import { ResponseMessage } from 'src/common/';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
 export declare class UserService {
     private userRepository;
@@ -14,6 +13,6 @@ export declare class UserService {
     signUp(dto: SignUpDto): Observable<string>;
     login(dto: LoginDto): Observable<string>;
     findAll(): Observable<User[]>;
-    deleteUser(user: User): Observable<ResponseMessage>;
-    changePassword(userId: string, dto: ChangePasswordDto): Observable<ResponseMessage>;
+    deleteUser(userId: string): Observable<string>;
+    changePassword(userId: string, dto: Readonly<ChangePasswordDto>): Observable<string>;
 }

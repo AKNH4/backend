@@ -22,7 +22,7 @@ export class UserEntity {
   password: string;
 
   @CreateDateColumn()
-  registered: Date;
+  registeredAt: Date;
 
   @OneToMany(() => PostEntity, (post: IPost) => post.creator)
   posts: PostEntity[];

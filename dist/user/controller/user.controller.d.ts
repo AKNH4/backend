@@ -8,13 +8,14 @@ import { LoginDto } from '../dto/Login.dto';
 export declare class UserController {
     private userService;
     constructor(userService: UserService);
-    getUserData(user: User): Observable<User>;
+    findAll(): Observable<User[]>;
+    getUserData(user: User, property: string): Observable<User>;
     signUp(dto: SignUpDto): Observable<{
         token: string;
     }>;
     login(dto: LoginDto): Observable<{
         token: string;
     }>;
-    deleteUser(user: User): Observable<ResponseMessage>;
-    changePassword(user: User, dto: ChangePasswordDto): Observable<ResponseMessage>;
+    deleteUser(userId: string): Observable<ResponseMessage>;
+    changePassword(userId: string, dto: ChangePasswordDto): Observable<ResponseMessage>;
 }

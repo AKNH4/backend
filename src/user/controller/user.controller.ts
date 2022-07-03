@@ -1,4 +1,4 @@
-import { HttpCode, ParseUUIDPipe } from '@nestjs/common';
+import { HttpCode, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { from, map, Observable, of } from 'rxjs';
 import AuthGuard from '../../auth/guard/auth.guard';
@@ -14,10 +14,18 @@ import { LoginDto } from '../dto/Login.dto';
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @Get()
+  findAll(): Observable<User[]> {
+    return this.userService.findAll();
+  }
+
   @Get('/data')
   @UseGuards(AuthGuard)
-  getUserData(@GetUser() user: User): Observable<User> {
-    return of(user);
+  getUserData(
+    @GetUser() user: User,
+    @Query('p') property: string,
+  ): Observable<User> {
+    return property ? of({ [property]: user[property] }) : of(user);
   }
 
   @Post('/sign-up')
@@ -32,16 +40,20 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Delete('/delete')
-  deleteUser(@GetUser() user: User): Observable<ResponseMessage> {
-    return this.userService.deleteUser(user);
+  deleteUser(@GetUser('id') userId: string): Observable<ResponseMessage> {
+    return this.userService
+      .deleteUser(userId)
+      .pipe(map((msg: string) => ({ msg })));
   }
 
   @UseGuards(AuthGuard)
   @Post('/change-password')
   changePassword(
-    @GetUser() user: User,
+    @GetUser('id') userId: string,
     @Body() dto: ChangePasswordDto,
   ): Observable<ResponseMessage> {
-    return this.userService.changePassword(user.id, dto);
+    return this.userService
+      .changePassword(userId, dto)
+      .pipe(map((msg: string) => ({ msg })));
   }
 }

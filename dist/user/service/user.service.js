@@ -30,54 +30,37 @@ let UserService = class UserService {
         return (0, rxjs_1.from)(this.userRepository.findOne({ where: { username } })).pipe((0, rxjs_1.switchMap)((user) => {
             if (user)
                 throw new common_1.BadRequestException('Benutzername gibt es schon');
-            return this.authService.hashPassword(password).pipe((0, rxjs_1.switchMap)((passwordHash) => {
-                return (0, rxjs_1.from)(this.userRepository.save({
-                    username,
-                    password: passwordHash,
-                })).pipe((0, rxjs_1.switchMap)((newUser) => this.authService.generateJWT(newUser.id)));
-            }));
+            return this.authService.hashPassword(password).pipe((0, rxjs_1.switchMap)((passwordHash) => (0, rxjs_1.from)(this.userRepository.save({
+                username,
+                password: passwordHash,
+            })).pipe((0, rxjs_1.switchMap)((newUser) => this.authService.generateJWT(newUser.id)))));
         }));
     }
     login(dto) {
         dto.username = dto.username.toLowerCase();
         const { username, password } = dto;
-        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { username } })).pipe((0, rxjs_1.switchMap)((user) => {
+        return this.authService.validateUser(username, password).pipe((0, rxjs_1.switchMap)((user) => {
             if (!user)
                 throw new common_1.UnauthorizedException('Logindaten falsch');
-            return this.authService.comparePasswords(password, user.password).pipe((0, rxjs_1.switchMap)((match) => {
-                if (!match)
-                    throw new common_1.UnauthorizedException('Logindaten falsch');
-                return this.authService.generateJWT(user.id);
-            }));
+            return this.authService
+                .generateJWT(user.id)
+                .pipe((0, rxjs_1.map)((token) => token));
         }));
     }
     findAll() {
-        return (0, rxjs_1.from)(this.userRepository.find()).pipe((0, rxjs_1.map)((users) => {
-            users.forEach(function (v) {
-                delete v.password;
-            });
-            return users;
-        }));
+        return (0, rxjs_1.from)(this.userRepository.find()).pipe((0, rxjs_1.map)((users) => users.map((user) => {
+            delete user.password;
+            return user;
+        })));
     }
-    deleteUser(user) {
-        return (0, rxjs_1.from)(this.userRepository.delete(user.id)).pipe((0, rxjs_1.map)(() => {
-            return { msg: 'Benutzer gelöscht!' };
-        }), (0, rxjs_1.catchError)((err) => {
-            throw new common_1.InternalServerErrorException('Failed!!!');
-        }));
+    deleteUser(userId) {
+        return (0, rxjs_1.from)(this.userRepository.delete(userId)).pipe((0, rxjs_1.map)(() => 'Benutzer gelöscht!'));
     }
     changePassword(userId, dto) {
-        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { id: userId } })).pipe((0, rxjs_1.switchMap)((user) => {
-            if (!user)
-                throw new common_1.BadRequestException("Benutzer mit der id gibt's nicht");
-            return (0, rxjs_1.from)(this.authService.hashPassword(dto.password)).pipe((0, rxjs_1.switchMap)((hash) => {
-                return (0, rxjs_1.from)(this.userRepository.update({ id: userId }, { password: hash })).pipe((0, rxjs_1.map)((res) => {
-                    if (!res)
-                        throw new common_1.InternalServerErrorException('OOps');
-                    return { msg: 'Passwort geändert!' };
-                }));
-            }));
-        }));
+        const { password } = dto;
+        return this.authService
+            .hashPassword(password)
+            .pipe((0, rxjs_1.switchMap)((passwordHash) => (0, rxjs_1.from)(this.userRepository.update({ id: userId }, { password: passwordHash })).pipe((0, rxjs_1.map)(() => 'Passwort geändert'))));
     }
 };
 UserService = __decorate([

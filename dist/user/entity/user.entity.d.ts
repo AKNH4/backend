@@ -4,7 +4,7 @@ export declare class UserEntity {
     id: string;
     username: string;
     password: string;
-    registered: Date;
+    registeredAt: Date;
     posts: PostEntity[];
     comments: CommentEntity[];
 }

@@ -1,1 +1,1 @@
-export * from './ResponseMessage.response';
+export * from './response-message';

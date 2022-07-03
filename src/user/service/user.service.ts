@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,9 +11,7 @@ import { SignUpDto } from '../dto/signUp.dto';
 import { LoginDto } from '../dto/Login.dto';
 import { UserEntity } from '../entity/user.entity';
 import { User } from '../entity/user.interface';
-import { ResponseMessage } from 'src/common/';
 import { ChangePasswordDto } from '../dto/changePassword.dto';
-
 @Injectable()
 export class UserService {
   constructor(
@@ -31,8 +28,8 @@ export class UserService {
       switchMap((user: User) => {
         if (user) throw new BadRequestException('Benutzername gibt es schon');
         return this.authService.hashPassword(password).pipe(
-          switchMap((passwordHash) => {
-            return from(
+          switchMap((passwordHash) =>
+            from(
               this.userRepository.save({
                 username,
                 password: passwordHash,
@@ -41,8 +38,8 @@ export class UserService {
               switchMap((newUser: User) =>
                 this.authService.generateJWT(newUser.id),
               ),
-            );
-          }),
+            ),
+          ),
         );
       }),
     );
@@ -52,62 +49,49 @@ export class UserService {
     dto.username = dto.username.toLowerCase();
     const { username, password } = dto;
 
-    return from(this.userRepository.findOne({ where: { username } })).pipe(
+    return this.authService.validateUser(username, password).pipe(
       switchMap((user: User) => {
         if (!user) throw new UnauthorizedException('Logindaten falsch');
-        return this.authService.comparePasswords(password, user.password).pipe(
-          switchMap((match: boolean) => {
-            if (!match) throw new UnauthorizedException('Logindaten falsch');
-            return this.authService.generateJWT(user.id);
-          }),
-        );
+        return this.authService
+          .generateJWT(user.id)
+          .pipe(map((token: string) => token));
       }),
     );
   }
 
   findAll(): Observable<User[]> {
     return from(this.userRepository.find()).pipe(
-      map((users: User[]) => {
-        users.forEach(function (v) {
-          delete v.password;
-        });
-        return users;
-      }),
+      map((users: User[]) =>
+        users.map((user: User) => {
+          delete user.password;
+          return user;
+        }),
+      ),
     );
   }
 
-  deleteUser(user: User): Observable<ResponseMessage> {
-    return from(this.userRepository.delete(user.id)).pipe(
-      map(() => {
-        return { msg: 'Benutzer gelöscht!' };
-      }),
-      catchError((err: any) => {
-        throw new InternalServerErrorException('Failed!!!');
-      }),
+  deleteUser(userId: string): Observable<string> {
+    return from(this.userRepository.delete(userId)).pipe(
+      map(() => 'Benutzer gelöscht!'),
     );
   }
 
   changePassword(
     userId: string,
-    dto: ChangePasswordDto,
-  ): Observable<ResponseMessage> {
-    return from(this.userRepository.findOne({ where: { id: userId } })).pipe(
-      switchMap((user: User) => {
-        if (!user)
-          throw new BadRequestException("Benutzer mit der id gibt's nicht");
-        return from(this.authService.hashPassword(dto.password)).pipe(
-          switchMap((hash: string) => {
-            return from(
-              this.userRepository.update({ id: userId }, { password: hash }),
-            ).pipe(
-              map((res: UpdateResult) => {
-                if (!res) throw new InternalServerErrorException('OOps');
-                return { msg: 'Passwort geändert!' };
-              }),
-            );
-          }),
-        );
-      }),
-    );
+    dto: Readonly<ChangePasswordDto>,
+  ): Observable<string> {
+    const { password } = dto;
+    return this.authService
+      .hashPassword(password)
+      .pipe(
+        switchMap((passwordHash: string) =>
+          from(
+            this.userRepository.update(
+              { id: userId },
+              { password: passwordHash },
+            ),
+          ).pipe(map(() => 'Passwort geändert')),
+        ),
+      );
   }
 }
