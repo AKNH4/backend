@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { catchError, from, map, Observable, switchMap } from 'rxjs';
+import { catchError, from, map, Observable, switchMap, take } from 'rxjs';
 import { Repository, UpdateResult } from 'typeorm';
 import { AuthService } from '../../auth/service/auth.service';
 import { SignUpDto } from '../dto/signUp.dto';
@@ -19,6 +19,17 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
     private authService: AuthService,
   ) {}
+
+  findAll(): Observable<User[]> {
+    return from(this.userRepository.find()).pipe(
+      map((users: User[]) =>
+        users.map((user: User) => {
+          delete user.password;
+          return user;
+        }),
+      ),
+    );
+  }
 
   signUp(dto: SignUpDto): Observable<string> {
     dto.username = dto.username.toLowerCase();
@@ -59,17 +70,6 @@ export class UserService {
     );
   }
 
-  findAll(): Observable<User[]> {
-    return from(this.userRepository.find()).pipe(
-      map((users: User[]) =>
-        users.map((user: User) => {
-          delete user.password;
-          return user;
-        }),
-      ),
-    );
-  }
-
   deleteUser(userId: string): Observable<string> {
     return from(this.userRepository.delete(userId)).pipe(
       map(() => 'Benutzer gelöscht!'),
@@ -77,7 +77,7 @@ export class UserService {
   }
 
   changePassword(
-    userId: string,
+    id: string,
     dto: Readonly<ChangePasswordDto>,
   ): Observable<string> {
     const { password } = dto;
@@ -86,12 +86,21 @@ export class UserService {
       .pipe(
         switchMap((passwordHash: string) =>
           from(
-            this.userRepository.update(
-              { id: userId },
-              { password: passwordHash },
-            ),
+            this.userRepository.update({ id }, { password: passwordHash }),
           ).pipe(map(() => 'Passwort geändert')),
         ),
       );
+  }
+
+  updateProfileImage(id: string, imagePath: string): Observable<string> {
+    return from(this.userRepository.update({ id }, { imagePath })).pipe(
+      map(() => 'Hochgeladen'),
+    );
+  }
+
+  findProfileImage(id: string): Observable<string> {
+    return from(this.userRepository.findOne({ where: { id } })).pipe(
+      map((user: User) => user.imagePath),
+    );
   }
 }

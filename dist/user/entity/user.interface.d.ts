@@ -4,6 +4,7 @@ export interface User {
     id?: string;
     username?: string;
     password?: string;
+    imagePath?: string;
     registeredAt?: Date;
     posts?: PostEntity[];
     comments?: CommentEntity[];

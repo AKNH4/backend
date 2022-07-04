@@ -47,8 +47,12 @@ export class AuthService {
   }
 
   validateRequest(request: Request): Observable<boolean> {
-    const token: string = request.headers.authorization?.split(' ')[1];
+    let token: string =
+      request.headers.authorization?.split(' ')[1] ||
+      <string>request.query.token;
+
     if (!token) throw new UnauthorizedException('Token missing');
+
     return from(this.jwtService.verifyAsync(token)).pipe(
       switchMap((decoded: any) => {
         return from(

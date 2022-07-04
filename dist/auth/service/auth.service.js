@@ -44,7 +44,8 @@ let AuthService = class AuthService {
     }
     validateRequest(request) {
         var _a;
-        const token = (_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+        let token = ((_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1]) ||
+            request.query.token;
         if (!token)
             throw new common_1.UnauthorizedException('Token missing');
         return (0, rxjs_1.from)(this.jwtService.verifyAsync(token)).pipe((0, rxjs_1.switchMap)((decoded) => {

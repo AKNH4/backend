@@ -24,6 +24,12 @@ let UserService = class UserService {
         this.userRepository = userRepository;
         this.authService = authService;
     }
+    findAll() {
+        return (0, rxjs_1.from)(this.userRepository.find()).pipe((0, rxjs_1.map)((users) => users.map((user) => {
+            delete user.password;
+            return user;
+        })));
+    }
     signUp(dto) {
         dto.username = dto.username.toLowerCase();
         const { username, password } = dto;
@@ -47,20 +53,20 @@ let UserService = class UserService {
                 .pipe((0, rxjs_1.map)((token) => token));
         }));
     }
-    findAll() {
-        return (0, rxjs_1.from)(this.userRepository.find()).pipe((0, rxjs_1.map)((users) => users.map((user) => {
-            delete user.password;
-            return user;
-        })));
-    }
     deleteUser(userId) {
         return (0, rxjs_1.from)(this.userRepository.delete(userId)).pipe((0, rxjs_1.map)(() => 'Benutzer gelöscht!'));
     }
-    changePassword(userId, dto) {
+    changePassword(id, dto) {
         const { password } = dto;
         return this.authService
             .hashPassword(password)
-            .pipe((0, rxjs_1.switchMap)((passwordHash) => (0, rxjs_1.from)(this.userRepository.update({ id: userId }, { password: passwordHash })).pipe((0, rxjs_1.map)(() => 'Passwort geändert'))));
+            .pipe((0, rxjs_1.switchMap)((passwordHash) => (0, rxjs_1.from)(this.userRepository.update({ id }, { password: passwordHash })).pipe((0, rxjs_1.map)(() => 'Passwort geändert'))));
+    }
+    updateProfileImage(id, imagePath) {
+        return (0, rxjs_1.from)(this.userRepository.update({ id }, { imagePath })).pipe((0, rxjs_1.map)(() => 'Hochgeladen'));
+    }
+    findProfileImage(id) {
+        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { id } })).pipe((0, rxjs_1.map)((user) => user.imagePath));
     }
 };
 UserService = __decorate([

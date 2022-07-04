@@ -28,6 +28,10 @@ __decorate([
     __metadata("design:type", String)
 ], UserEntity.prototype, "password", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: 'katzi.jpg' }),
+    __metadata("design:type", String)
+], UserEntity.prototype, "imagePath", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], UserEntity.prototype, "registeredAt", void 0);

@@ -22,6 +22,8 @@ const changePassword_dto_1 = require("../dto/changePassword.dto");
 const signUp_dto_1 = require("../dto/signUp.dto");
 const user_service_1 = require("../service/user.service");
 const Login_dto_1 = require("../dto/Login.dto");
+const platform_express_1 = require("@nestjs/platform-express");
+const profileimage_storage_1 = require("../helper/profileimage.storage");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -48,6 +50,18 @@ let UserController = class UserController {
             .changePassword(userId, dto)
             .pipe((0, rxjs_1.map)((msg) => ({ msg })));
     }
+    uploadProfileImage(userId, file) {
+        if (!(file === null || file === void 0 ? void 0 : file.filename))
+            throw new common_1.BadRequestException('Bild fehlt');
+        return this.userService
+            .updateProfileImage(userId, file === null || file === void 0 ? void 0 : file.filename)
+            .pipe((0, rxjs_1.map)((msg) => ({ msg })));
+    }
+    profileImage(userId, res) {
+        return this.userService
+            .findProfileImage(userId)
+            .pipe((0, rxjs_1.map)((imagePath) => res.sendFile(imagePath, { root: './uploads/profileimages' })));
+    }
 };
 __decorate([
     (0, common_2.Get)(),
@@ -56,7 +70,7 @@ __decorate([
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "findAll", null);
 __decorate([
-    (0, common_2.Get)('/data'),
+    (0, common_2.Get)('data'),
     (0, common_2.UseGuards)(auth_guard_1.default),
     __param(0, (0, getuser_decorator_1.GetUser)()),
     __param(1, (0, common_1.Query)('p')),
@@ -65,14 +79,14 @@ __decorate([
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "getUserData", null);
 __decorate([
-    (0, common_2.Post)('/sign-up'),
+    (0, common_2.Post)('sign-up'),
     __param(0, (0, common_2.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [signUp_dto_1.SignUpDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "signUp", null);
 __decorate([
-    (0, common_2.Post)('/login'),
+    (0, common_2.Post)('login'),
     __param(0, (0, common_2.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Login_dto_1.LoginDto]),
@@ -80,7 +94,7 @@ __decorate([
 ], UserController.prototype, "login", null);
 __decorate([
     (0, common_2.UseGuards)(auth_guard_1.default),
-    (0, common_2.Delete)('/delete'),
+    (0, common_2.Delete)('delete'),
     __param(0, (0, getuser_decorator_1.GetUser)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -88,13 +102,32 @@ __decorate([
 ], UserController.prototype, "deleteUser", null);
 __decorate([
     (0, common_2.UseGuards)(auth_guard_1.default),
-    (0, common_2.Post)('/change-password'),
+    (0, common_2.Post)('change-password'),
     __param(0, (0, getuser_decorator_1.GetUser)('id')),
     __param(1, (0, common_2.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, changePassword_dto_1.ChangePasswordDto]),
     __metadata("design:returntype", rxjs_1.Observable)
 ], UserController.prototype, "changePassword", null);
+__decorate([
+    (0, common_2.UseGuards)(auth_guard_1.default),
+    (0, common_2.Post)('upload'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', profileimage_storage_1.ProfileImageStorage)),
+    __param(0, (0, getuser_decorator_1.GetUser)('id')),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", rxjs_1.Observable)
+], UserController.prototype, "uploadProfileImage", null);
+__decorate([
+    (0, common_2.UseGuards)(auth_guard_1.default),
+    (0, common_2.Get)('image'),
+    __param(0, (0, getuser_decorator_1.GetUser)('id')),
+    __param(1, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "profileImage", null);
 UserController = __decorate([
     (0, common_2.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

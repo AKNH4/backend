@@ -21,6 +21,9 @@ export class UserEntity {
   @Column()
   password: string;
 
+  @Column({ default: 'katzi.jpg' })
+  imagePath: string;
+
   @CreateDateColumn()
   registeredAt: Date;
 

@@ -10,9 +10,11 @@ export declare class UserService {
     private userRepository;
     private authService;
     constructor(userRepository: Repository<UserEntity>, authService: AuthService);
+    findAll(): Observable<User[]>;
     signUp(dto: SignUpDto): Observable<string>;
     login(dto: LoginDto): Observable<string>;
-    findAll(): Observable<User[]>;
     deleteUser(userId: string): Observable<string>;
-    changePassword(userId: string, dto: Readonly<ChangePasswordDto>): Observable<string>;
+    changePassword(id: string, dto: Readonly<ChangePasswordDto>): Observable<string>;
+    updateProfileImage(id: string, imagePath: string): Observable<string>;
+    findProfileImage(id: string): Observable<string>;
 }
