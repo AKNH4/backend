@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
 import { WeatherModule } from './weather/weather.module';
 import { User\controller\imageController } from './user/controller/image.controller';
+import { User\service\imageService } from './user/service/image.service';
 @Module({
   imports: [
     // TypeOrmModule.forRoot({
@@ -40,6 +41,6 @@ import { User\controller\imageController } from './user/controller/image.control
     WeatherModule,
   ],
   controllers: [AppController, User\controller\imageController],
-  providers: [AppService],
+  providers: [AppService, User\service\imageService],
 })
 export class AppModule {}
