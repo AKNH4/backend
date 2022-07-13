@@ -13,6 +13,7 @@ import { PostModule } from './post/post.module';
 import { WeatherModule } from './weather/weather.module';
 import { User\controller\imageController } from './user/controller/image.controller';
 import { User\service\imageService } from './user/service/image.service';
+import { TestModule } from './test/test.module';
 @Module({
   imports: [
     // TypeOrmModule.forRoot({
@@ -39,6 +40,7 @@ import { User\service\imageService } from './user/service/image.service';
     AuthModule,
     PostModule,
     WeatherModule,
+    TestModule,
   ],
   controllers: [AppController, User\controller\imageController],
   providers: [AppService, User\service\imageService],
