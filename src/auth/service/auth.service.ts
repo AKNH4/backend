@@ -33,16 +33,17 @@ export class AuthService {
 
   validateUser(username: string, password: string): Observable<User> {
     return from(this.userRepository.findOne({ where: { username } })).pipe(
-      switchMap((user: User) =>
-        this.comparePasswords(password, user.password).pipe(
+      switchMap((user: User) => {
+        if (!user) throw new UnauthorizedException('Logindaten falsch');
+        return this.comparePasswords(password, user.password).pipe(
           map((passwordMatch: boolean) => {
             if (passwordMatch) {
               delete user.password;
               return user;
             }
           }),
-        ),
-      ),
+        );
+      }),
     );
   }
 

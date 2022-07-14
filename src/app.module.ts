@@ -11,9 +11,6 @@ import config from './config/ormconfig';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
 import { WeatherModule } from './weather/weather.module';
-import { User\controller\imageController } from './user/controller/image.controller';
-import { User\service\imageService } from './user/service/image.service';
-import { TestModule } from './test/test.module';
 @Module({
   imports: [
     // TypeOrmModule.forRoot({
@@ -40,9 +37,8 @@ import { TestModule } from './test/test.module';
     AuthModule,
     PostModule,
     WeatherModule,
-    TestModule,
   ],
-  controllers: [AppController, User\controller\imageController],
-  providers: [AppService, User\service\imageService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

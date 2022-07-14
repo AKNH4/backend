@@ -45,13 +45,11 @@ let UserService = class UserService {
     login(dto) {
         dto.username = dto.username.toLowerCase();
         const { username, password } = dto;
-        return this.authService.validateUser(username, password).pipe((0, rxjs_1.switchMap)((user) => {
-            if (!user)
-                throw new common_1.UnauthorizedException('Logindaten falsch');
-            return this.authService
-                .generateJWT(user.id)
-                .pipe((0, rxjs_1.map)((token) => token));
-        }));
+        return this.authService
+            .validateUser(username, password)
+            .pipe((0, rxjs_1.switchMap)((user) => this.authService
+            .generateJWT(user.id)
+            .pipe((0, rxjs_1.map)((token) => token))));
     }
     deleteUser(userId) {
         return (0, rxjs_1.from)(this.userRepository.delete(userId)).pipe((0, rxjs_1.map)(() => 'Benutzer gelöscht!'));

@@ -35,12 +35,16 @@ let AuthService = class AuthService {
         return (0, rxjs_1.from)((0, bcrypt_1.compare)(password, storedPassword));
     }
     validateUser(username, password) {
-        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { username } })).pipe((0, rxjs_1.switchMap)((user) => this.comparePasswords(password, user.password).pipe((0, rxjs_1.map)((passwordMatch) => {
-            if (passwordMatch) {
-                delete user.password;
-                return user;
-            }
-        }))));
+        return (0, rxjs_1.from)(this.userRepository.findOne({ where: { username } })).pipe((0, rxjs_1.switchMap)((user) => {
+            if (!user)
+                throw new common_1.UnauthorizedException('Logindaten falsch');
+            return this.comparePasswords(password, user.password).pipe((0, rxjs_1.map)((passwordMatch) => {
+                if (passwordMatch) {
+                    delete user.password;
+                    return user;
+                }
+            }));
+        }));
     }
     validateRequest(request) {
         var _a;

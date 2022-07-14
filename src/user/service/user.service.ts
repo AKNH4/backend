@@ -60,14 +60,15 @@ export class UserService {
     dto.username = dto.username.toLowerCase();
     const { username, password } = dto;
 
-    return this.authService.validateUser(username, password).pipe(
-      switchMap((user: User) => {
-        if (!user) throw new UnauthorizedException('Logindaten falsch');
-        return this.authService
-          .generateJWT(user.id)
-          .pipe(map((token: string) => token));
-      }),
-    );
+    return this.authService
+      .validateUser(username, password)
+      .pipe(
+        switchMap((user: User) =>
+          this.authService
+            .generateJWT(user.id)
+            .pipe(map((token: string) => token)),
+        ),
+      );
   }
 
   deleteUser(userId: string): Observable<string> {
